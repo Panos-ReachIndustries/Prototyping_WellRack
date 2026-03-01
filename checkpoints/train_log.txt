@@ -1,0 +1,32 @@
+[TRAIN] Device: cpu
+[TRAIN] Config: backbone=resnet18, input=384x384, sigma=2.5, lr=0.001, bs=4, epochs=150
+[TRAIN] Train: 56, Val: 6, Test (held out): 6
+[MODEL] resnet18 | total params: 13,929,985 | trainable: 13,929,985
+Epoch 001/150 | train_loss=0.141221 | val_loss=0.133002 | P=0.247 R=0.872 dist=2.45 | lr=1.0e-03 | 5.6s
+  -> saved best model (val_loss=0.133002)
+Epoch 002/150 | train_loss=0.043270 | val_loss=0.075366 | P=0.559 R=0.615 dist=2.25 | lr=1.0e-03 | 5.9s
+  -> saved best model (val_loss=0.075366)
+Epoch 003/150 | train_loss=0.028961 | val_loss=0.029322 | P=0.770 R=0.701 dist=2.16 | lr=1.0e-03 | 6.0s
+  -> saved best model (val_loss=0.029322)
+Epoch 004/150 | train_loss=0.022766 | val_loss=0.018408 | P=0.704 R=0.750 dist=1.99 | lr=1.0e-03 | 5.8s
+  -> saved best model (val_loss=0.018408)
+Epoch 005/150 | train_loss=0.021442 | val_loss=0.020400 | P=0.421 R=0.788 dist=1.97 | lr=1.0e-03 | 6.4s
+Epoch 010/150 | train_loss=0.015127 | val_loss=0.016752 | P=0.379 R=0.767 dist=2.05 | lr=1.0e-03 | 5.7s
+Epoch 020/150 | train_loss=0.015888 | val_loss=0.014020 | P=0.639 R=0.837 dist=2.01 | lr=1.0e-03 | 5.7s
+Epoch 030/150 | train_loss=0.013837 | val_loss=0.022814 | P=0.578 R=0.712 dist=2.24 | lr=1.0e-03 | 5.6s
+Epoch 040/150 | train_loss=0.013823 | val_loss=0.017901 | P=0.538 R=0.830 dist=2.12 | lr=1.0e-03 | 5.7s
+Epoch 050/150 | train_loss=0.015041 | val_loss=0.018952 | P=0.405 R=0.653 dist=2.00 | lr=1.0e-03 | 5.9s
+Epoch 060/150 | train_loss=0.013732 | val_loss=0.013793 | P=0.528 R=0.802 dist=2.08 | lr=1.0e-04 | 5.8s
+Epoch 070/150 | train_loss=0.010461 | val_loss=0.012057 | P=0.571 R=0.764 dist=1.85 | lr=1.0e-04 | 5.6s
+Epoch 080/150 | train_loss=0.010339 | val_loss=0.011388 | P=0.550 R=0.767 dist=1.82 | lr=1.0e-04 | 5.8s
+Epoch 090/150 | train_loss=0.009789 | val_loss=0.010781 | P=0.552 R=0.833 dist=1.56 | lr=1.0e-04 | 9.8s
+Epoch 100/150 | train_loss=0.009003 | val_loss=0.011544 | P=0.583 R=0.917 dist=1.42 | lr=1.0e-05 | 10.5s
+Epoch 110/150 | train_loss=0.008161 | val_loss=0.009706 | P=0.575 R=0.913 dist=1.28 | lr=1.0e-05 | 11.9s
+Epoch 120/150 | train_loss=0.007980 | val_loss=0.010209 | P=0.591 R=0.917 dist=1.33 | lr=1.0e-05 | 12.2s
+Epoch 130/150 | train_loss=0.007518 | val_loss=0.009849 | P=0.610 R=0.920 dist=1.29 | lr=1.0e-06 | 12.1s
+Epoch 140/150 | train_loss=0.007107 | val_loss=0.009720 | P=0.607 R=0.910 dist=1.26 | lr=1.0e-06 | 11.6s
+Epoch 150/150 | train_loss=0.007091 | val_loss=0.009477 | P=0.621 R=0.931 dist=1.24 | lr=1.0e-06 | 12.0s
+
+[TRAIN] Done in 1220.3s (20.3 min)
+[TRAIN] Best val loss: 0.009270
+[TRAIN] History saved -> checkpoints/history.json
