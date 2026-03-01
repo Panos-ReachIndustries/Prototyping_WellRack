@@ -34,21 +34,11 @@ class VialKeypointDataset(Dataset):
     IMAGENET_STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
 
     def __init__(self, annotations_path: str, images_dir: str,
-                 input_size: tuple[int, int] = (512, 512),
+                 input_size: tuple[int, int] = (384, 384),
                  heatmap_stride: int = 4,
                  sigma: float = 2.5,
                  augment: bool = False,
                  file_list: list[str] | None = None):
-        """
-        Args:
-            annotations_path: path to JSON file with per-image keypoints.
-            images_dir: directory containing the images.
-            input_size: (H, W) to resize input images to.
-            heatmap_stride: output_stride of the model (heatmap = input / stride).
-            sigma: Gaussian sigma in heatmap pixels.
-            augment: whether to apply training augmentations.
-            file_list: if provided, only use these filenames (for train/val split).
-        """
         with open(annotations_path) as f:
             self.all_annotations = json.load(f)
 
@@ -123,19 +113,25 @@ class VialKeypointDataset(Dataset):
         img = (img - self.IMAGENET_MEAN) / self.IMAGENET_STD
         return torch.from_numpy(img.transpose(2, 0, 1))
 
+    # ------------------------------------------------------------------
+    # Augmentation pipeline
+    # ------------------------------------------------------------------
     def _augment(self, img: np.ndarray, kps: np.ndarray):
         h, w = img.shape[:2]
 
+        # Horizontal flip
         if random.random() < 0.5:
             img = img[:, ::-1].copy()
             kps[:, 0] = w - kps[:, 0]
 
+        # Vertical flip
         if random.random() < 0.5:
             img = img[::-1, :].copy()
             kps[:, 1] = h - kps[:, 1]
 
+        # Rotation ±15°
         if random.random() < 0.5:
-            angle = random.uniform(-10, 10)
+            angle = random.uniform(-15, 15)
             cx, cy = w / 2, h / 2
             M = cv2.getRotationMatrix2D((cx, cy), angle, 1.0)
             img = cv2.warpAffine(img, M, (w, h), borderMode=cv2.BORDER_REFLECT)
@@ -143,22 +139,54 @@ class VialKeypointDataset(Dataset):
             kps_h = np.hstack([kps, ones])
             kps = (M @ kps_h.T).T
 
+        # Scale jitter 0.8–1.2
         if random.random() < 0.5:
-            scale = random.uniform(0.85, 1.15)
+            scale = random.uniform(0.80, 1.20)
             new_w, new_h = int(w * scale), int(h * scale)
-            img = cv2.resize(img, (new_w, new_h))
-            kps[:, 0] *= scale
-            kps[:, 1] *= scale
+            if new_w > 0 and new_h > 0:
+                img = cv2.resize(img, (new_w, new_h))
+                kps[:, 0] *= scale
+                kps[:, 1] *= scale
 
+        # Translation shift ±5%
+        if random.random() < 0.3:
+            h2, w2 = img.shape[:2]
+            tx = random.uniform(-0.05, 0.05) * w2
+            ty = random.uniform(-0.05, 0.05) * h2
+            M_t = np.float32([[1, 0, tx], [0, 1, ty]])
+            img = cv2.warpAffine(img, M_t, (w2, h2), borderMode=cv2.BORDER_REFLECT)
+            kps[:, 0] += tx
+            kps[:, 1] += ty
+
+        # Brightness jitter
         if random.random() < 0.4:
-            delta = random.randint(-30, 30)
+            delta = random.randint(-40, 40)
             img = np.clip(img.astype(np.int16) + delta, 0, 255).astype(np.uint8)
 
+        # Contrast jitter
+        if random.random() < 0.3:
+            factor = random.uniform(0.7, 1.3)
+            mean_val = img.mean()
+            img = np.clip((img.astype(np.float32) - mean_val) * factor + mean_val,
+                          0, 255).astype(np.uint8)
+
+        # Saturation / value jitter in HSV
         if random.random() < 0.3:
             hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV).astype(np.float32)
-            hsv[:, :, 1] *= random.uniform(0.7, 1.3)
-            hsv[:, :, 2] *= random.uniform(0.8, 1.2)
+            hsv[:, :, 1] *= random.uniform(0.6, 1.4)
+            hsv[:, :, 2] *= random.uniform(0.7, 1.3)
             hsv = np.clip(hsv, 0, 255).astype(np.uint8)
             img = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+
+        # Gaussian noise
+        if random.random() < 0.25:
+            noise_std = random.uniform(3, 15)
+            noise = np.random.normal(0, noise_std, img.shape).astype(np.float32)
+            img = np.clip(img.astype(np.float32) + noise, 0, 255).astype(np.uint8)
+
+        # Gaussian blur
+        if random.random() < 0.2:
+            ksize = random.choice([3, 5])
+            img = cv2.GaussianBlur(img, (ksize, ksize), 0)
 
         return img, kps
