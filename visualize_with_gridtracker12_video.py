@@ -30,8 +30,7 @@ from gridtracker_functions_method_best import VialsDetector, compute_grid_confid
 from keypoint_model.detect_vials import KeypointVialsDetector
 
 # Import LidStateClassifier
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "V2"))
-from GridTracker.LidStateClassifier import LidStateClassifier
+from LidStateClassifier import LidStateClassifier
 
 logging.basicConfig(
     level=logging.INFO,
